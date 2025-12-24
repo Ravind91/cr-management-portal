@@ -3,12 +3,15 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 
+// Store reference to the original window.storage
+const originalStorage = window.storage;
+
 // Shared Storage API using Claude's persistent storage
-const storage = {
+const sharedStorage = {
   get: async (key) => {
     try {
-      // Try to get from shared storage first
-      const result = await window.storage.get(key, true);
+      // Use original storage with shared flag
+      const result = await originalStorage.get(key, true);
       return result;
     } catch (error) {
       // If not found in shared storage, throw error
@@ -19,7 +22,7 @@ const storage = {
   set: async (key, value) => {
     try {
       // Always use shared storage (shared: true)
-      const result = await window.storage.set(key, value, true);
+      const result = await originalStorage.set(key, value, true);
       return result;
     } catch (error) {
       console.error('Storage set error:', error);
@@ -29,7 +32,7 @@ const storage = {
   
   delete: async (key) => {
     try {
-      const result = await window.storage.delete(key, true);
+      const result = await originalStorage.delete(key, true);
       return result;
     } catch (error) {
       console.error('Storage delete error:', error);
@@ -39,7 +42,7 @@ const storage = {
   
   list: async (prefix) => {
     try {
-      const result = await window.storage.list(prefix, true);
+      const result = await originalStorage.list(prefix, true);
       return result;
     } catch (error) {
       console.error('Storage list error:', error);
@@ -48,8 +51,8 @@ const storage = {
   }
 };
 
-// Override the window.storage with shared storage
-window.storage = storage;
+// Override window.storage with shared storage wrapper
+window.storage = sharedStorage;
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
