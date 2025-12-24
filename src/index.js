@@ -2,7 +2,28 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
+
+// Storage API setup
+const storage = {
+  get: async (key) => {
+    const value = localStorage.getItem(key);
+    if (value === null) throw new Error('Key not found');
+    return { key, value, shared: false };
+  },
+  set: async (key, value) => {
+    localStorage.setItem(key, value);
+    return { key, value, shared: false };
+  },
+  delete: async (key) => {
+    localStorage.removeItem(key);
+    return { key, deleted: true, shared: false };
+  },
+  list: async (prefix) => {
+    const keys = Object.keys(localStorage).filter(k => !prefix || k.startsWith(prefix));
+    return { keys, prefix, shared: false };
+  }
+};
+window.storage = storage;
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -10,8 +31,3 @@ root.render(
     <App />
   </React.StrictMode>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
